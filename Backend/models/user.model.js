@@ -1,50 +1,34 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
 
 
 const userSchema = new mongoose.Schema({
     fullname: {
-        type : String,
-        required: true,
-        minlength :[3 , ' first name must be alteast 3 characters long'],
-        lastname: {
-            type: String,
-            required: true,
-            minlength :[3 , ' last name must be alteast 3 characters long'],   
-        }
+        firstname: { type: String, required: true },
+        lastname: { type: String, required: true }
     },
-    email:{
-        type :String,
-        required: true,
-        unique : true,
-        minlength:[5 , 'email must be 5 chracter long']
-    },
-    password:{
-        type : String,
-        required: true,
-        select : false,
-    },
-    socketId :{
-        type : String,
-    },
-
-})
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true }
+});
 
 
-userSchema.method.generateAuthToken = function(){
-    const token = jwt.sign({ _id : this._id }, process.env.JWT_SECRET)
-    return token;
-}
+userSchema.pre("save", async function (next) {
+    if (!this.isModified("password")) return next();
+    try {
+        const salt = await bcrypt.genSalt(10);
+        this.password = await bcrypt.hash(this.password, salt);
+        next();
+    } catch (error) {
+        next(error);
+    }
+});
 
-userSchema.methods.comparePassword = async function (password){
-    return await bcrypt.compare(password , this.password);
-}
 
-userSchema.static.hashPassword = async function (password){
-    return await bcrypt.hash(password , 10);
-}
+userSchema.statics.hashPassword = async function (password) {
+    const salt = await bcrypt.genSalt(10);
+    return await bcrypt.hash(password, salt);
+};
 
-const userModel = mongoose.model('user' , userSchema);
+const userModel = mongoose.model("User", userSchema);
 
 module.exports = userModel;
