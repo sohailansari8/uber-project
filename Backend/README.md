@@ -170,3 +170,241 @@ curl -X POST http://localhost:4000/captains/register \
   "token": "jwt_token"
 }
 ```
+
+## /captains/login
+
+### Description
+This endpoint is used to log in an existing captain.
+
+### Method
+`POST`
+
+### Request Body
+The request body should be a JSON object with the following fields:
+
+- `email`: A valid email address.
+- `password`: A string with a minimum length of 6 characters.
+
+Example:
+```json
+{
+  "email": "john.doe@example.com",
+  "password": "password123"
+}
+```
+
+### Response
+
+#### Success
+- **Status** `200 OK`
+- **Body**:
+  ```json
+  {
+    "captain": {
+      "id": "captain_id",
+      "fullname": {
+        "firstname": "John",
+        "lastname": "Doe"
+      },
+      "email": "john.doe@example.com",
+      "vehicle": {
+        "color": "red",
+        "plate": "ABC123",
+        "capacity": 4,
+        "vehicleType": "car"
+      }
+    },
+    "token": "jwt_token"
+  }
+  ```
+
+#### Error
+- **Status Code**: `400 Bad Request`
+- **Body**:
+  ```json
+  {
+    "errors": [
+      {
+        "msg": "Invalid email format",
+        "param": "email",
+        "location": "body"
+      },
+      {
+        "msg": "Password must be at least 6 characters long",
+        "param": "password",
+        "location": "body"
+      }
+    ]
+  }
+  ```
+  This error occurs if the validation fails.
+
+- **Status Code**: `401 Unauthorized`
+- **Body**:
+  ```json
+  {
+    "message": "Invalid email or password"
+  }
+  ```
+  This error occurs if the email or password is incorrect.
+
+- **Status Code**: `500 Internal Server Error`
+- **Body**:
+  ```json
+  {
+    "message": "Error message"
+  }
+  ```
+  This error occurs if there is an issue with the server or database.
+
+### Validation
+The following validations are performed on the request body:
+- `email` must be a valid email address.
+- `password` must be at least 6 characters long.
+
+### Example Request
+```sh
+curl -X POST http://localhost:4000/captains/login \
+-H "Content-Type: application/json" \
+-d '{
+  "email": "john.doe@example.com",
+  "password": "password123"
+}'
+```
+
+### Example Response
+```json
+{
+  "captain": {
+    "id": "captain_id",
+    "fullname": {
+      "firstname": "John",
+      "lastname": "Doe"
+    },
+    "email": "john.doe@example.com",
+    "vehicle": {
+      "color": "red",
+      "plate": "ABC123",
+      "capacity": 4,
+      "vehicleType": "car"
+    }
+  },
+  "token": "jwt_token"
+}
+```
+
+## /captains/profile
+
+### Description
+This endpoint is used to get the profile of the logged-in captain.
+
+### Method
+`GET`
+
+### Headers
+- `Authorization`: Bearer token
+
+### Response
+
+#### Success
+- **Status** `200 OK`
+- **Body**:
+  ```json
+  {
+    "captain": {
+      "id": "captain_id",
+      "fullname": {
+        "firstname": "John",
+        "lastname": "Doe"
+      },
+      "email": "john.doe@example.com",
+      "vehicle": {
+        "color": "red",
+        "plate": "ABC123",
+        "capacity": 4,
+        "vehicleType": "car"
+      }
+    }
+  }
+  ```
+
+#### Error
+- **Status Code**: `401 Unauthorized`
+- **Body**:
+  ```json
+  {
+    "message": "Unauthorized"
+  }
+  ```
+  This error occurs if the captain is not authenticated.
+
+### Example Request
+```sh
+curl -X GET http://localhost:4000/captains/profile \
+-H "Authorization: Bearer jwt_token"
+```
+
+### Example Response
+```json
+{
+  "captain": {
+    "id": "captain_id",
+    "fullname": {
+      "firstname": "John",
+      "lastname": "Doe"
+    },
+    "email": "john.doe@example.com",
+    "vehicle": {
+      "color": "red",
+      "plate": "ABC123",
+      "capacity": 4,
+      "vehicleType": "car"
+    }
+  }
+}
+```
+
+## /captains/logout
+
+### Description
+This endpoint is used to log out the captain.
+
+### Method
+`GET`
+
+### Headers
+- `Authorization`: Bearer token
+
+### Response
+
+#### Success
+- **Status** `200 OK`
+- **Body**:
+  ```json
+  {
+    "message": "Logout successful"
+  }
+  ```
+
+#### Error
+- **Status Code**: `401 Unauthorized`
+- **Body**:
+  ```json
+  {
+    "message": "Unauthorized"
+  }
+  ```
+  This error occurs if the captain is not authenticated.
+
+### Example Request
+```sh
+curl -X GET http://localhost:4000/captains/logout \
+-H "Authorization: Bearer jwt_token"
+```
+
+### Example Response
+```json
+{
+  "message": "Logout successful"
+}
+```
